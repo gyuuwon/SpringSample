@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.dao.BoardDAO">
+	
+	<insert id="register" parameterType="net.koreate.vo.BoardVO">
+		INSERT INTO re_tbl_board(title,content,writer,uno) 
+		VALUES(#{title},#{content},#{writer},#{uno})	
+	</insert>
+	
+	<update id="updateOrigin">
+		UPDATE re_tbl_board SET origin = LAST_INSERT_ID() 
+		WHERE bno = LAST_INSERT_ID()
+	</update>
+	
+	<insert id="addAttach" parameterType="java.lang.String">
+		INSERT INTO tbl_attach(fullName,bno) 
+		VALUES(#{fullName},LAST_INSERT_ID())
+	</insert>
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">
+				WHERE title LIKE CONCAT('%',#{keyword},'%') 
+			</if>
+			<if test="searchType == 'c'.toString()">
+				WHERE content LIKE CONCAT('%',#{keyword},'%') 
+			</if>
+			<if test="searchType == 'w'.toString()">
+				WHERE WRITER LIKE CONCAT('%',#{keyword},'%') 
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				WHERE title LIKE CONCAT('%',#{keyword},'%') 
+				OR content LIKE CONCAT('%',#{keyword},'%')
+			</if>
+			<if test="searchType == 'cw'.toString()">
+				WHERE writer LIKE CONCAT('%',#{keyword},'%') 
+				OR content LIKE CONCAT('%',#{keyword},'%')
+			</if>
+			<if test="searchType == 'tcw'.toString()">
+				WHERE title LIKE CONCAT('%',#{keyword},'%') 
+				OR content LIKE CONCAT('%',#{keyword},'%')
+				OR writer LIKE CONCAT('%',#{keyword},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<select id="listReplyCriteria" resultType="net.koreate.vo.BoardVO">
+		SELECT * FROM re_tbl_board 
+		<include refid="search"></include>	
+		ORDER BY origin DESC , seq ASC	
+		limit #{pageStart}, #{perPageNum}
+	</select>	
+	
+	<select id="listReplyCount" resultType="int">
+		SELECT count(*) FROM re_tbl_board 
+		<include refid="search"></include>		
+	</select>
+	
+	<update id="updateCnt" parameterType="int">
+		UPDATE re_tbl_board SET viewcnt = viewcnt + 1 
+		WHERE bno = #{bno}
+	</update>
+	
+	<select id="readReply" 
+			parameterType="int" 
+			resultType="net.koreate.vo.BoardVO">
+		SELECT * FROM  
+		re_tbl_board 
+		WHERE bno = #{bno}
+	</select>
+	
+	<select id="getAttach" parameterType="int" resultType="string">
+		SELECT fullName FROM tbl_attach 
+		WHERE bno = #{bno} ORDER BY regdate DESC
+	</select>
+
+	<!-- 게시글 삭제 -->
+	<update id="delete" parameterType="int">
+		UPDATE re_tbl_board SET showboard = 'n' 
+		WHERE bno = #{bno} 
+	</update>
+	
+	<!-- 답글들의 정렬값 수정 -->
+	<update id="updateReply" parameterType="net.koreate.vo.BoardVO">
+		UPDATE re_tbl_board SET seq = seq + 1 
+		WHERE origin = #{origin} AND seq > #{seq}		
+	</update>
+	
+	<!-- 답글 등록 -->
+	<insert id="replyRegister" parameterType="net.koreate.vo.BoardVO">
+		INSERT INTO re_tbl_board(title,content,writer,origin,depth,seq,uno)  
+		VALUES(#{title},#{content},#{writer},#{origin},#{depth},#{seq},#{uno})
+	</insert>
+
+	<delete id="deleteAttach" parameterType="int">
+		DELETE FROM tbl_attach WHERE bno = #{bno}
+	</delete>
+	
+	<!-- 게시물 정보 수정 -->
+	<update id="update" parameterType="net.koreate.vo.BoardVO">
+		UPDATE re_tbl_board SET 
+			title = #{title},
+			content = #{content},
+			writer = #{writer} ,
+			updatedate = now() 
+		WHERE bno = #{bno}		
+	</update>
+	
+	<insert id="replaceAttach" parameterType="java.util.Map">
+		INSERT INTO tbl_attach(fullname,bno) 
+		VALUES(#{fullName},#{bno})
+	</insert>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.test.dao.MemberDAO">
+
+	<resultMap type="net.koreate.test.vo.ValidationMemberVO" id="memberMap">
+		<id property="u_id" column="u_id"/>
+		<result property="u_no" column="u_no" />
+		<result property="u_id" column="u_id" />
+		<result property="u_pw" column="u_pw" />
+		<result property="u_phone" column="u_phone" />
+		<result property="u_birth" column="u_birth" />
+		<result property="u_name" column="u_name" />
+		<result property="u_addr" column="u_addr" />
+		<result property="u_addr_detail" column="u_addr_detail" />
+		<result property="u_addr_post" column="u_addr_post" />
+		<result property="u_point" column="u_point" />
+		<result property="u_info" column="u_info" />
+		<result property="u_date" column="u_date" />
+		<result property="u_visit_date" column="u_visit_date" />
+		<result property="u_withdraw" column="u_withdraw" />		
+		<collection property="authList" resultMap="authMap">	
+		</collection>
+	</resultMap>
+	
+	<resultMap type="net.koreate.test.vo.AuthVO" id="authMap">
+		<result property="u_id" column="u_id"/>
+		<result property="u_auth" column="u_auth"/>		
+	</resultMap>
+	
+	<select id="getMemberByID" parameterType="java.lang.String" resultMap="memberMap"> 
+		SELECT
+			mem.*, u_auth
+		FROM validation_member mem LEFT OUTER JOIN validation_member_auth mauth
+		on mem.u_id = mauth.u_id 
+		WHERE mem.u_id = #{u_id} AND u_withdraw = 'n'
+	</select>
+	
+	<!-- 신규회원 정보 등록 -->
+	<insert id="memberJoin" parameterType="net.koreate.test.vo.ValidationMemberVO">
+		INSERT INTO validation_member(
+			u_id,u_pw,u_phone,u_birth,u_name,u_addr,u_addr_detail,u_addr_post
+		) 
+		VALUES(
+		#{u_id},
+		#{u_pw},
+		#{u_phone},
+		#{u_birth},
+		#{u_name},
+		#{u_addr},
+		#{u_addr_detail},
+		#{u_addr_post}
+		)
+	</insert>
+	
+	<insert id="insertAuth" parameterType="java.lang.String">
+		INSERT INTO validation_member_auth(u_id,u_auth) 
+		VALUES(#{u_id},'ROLE_USER')
+	</insert>
+	
+	<update id="updateVisitDate" parameterType="java.lang.String">
+		UPDATE validation_member SET u_visit_date = now() 
+		WHERE u_id = #{u_id}
+	</update>
+	
+	<select id="getMemberList" resultMap="memberMap">
+		SELECT
+			mem.*, u_auth
+		FROM validation_member mem LEFT OUTER JOIN validation_member_auth mauth
+		on mem.u_id = mauth.u_id 
+		ORDER BY u_no DESC
+	</select>
+	
+	<!-- 권한 목록 -->
+	<select id="getAuthList" resultType="net.koreate.test.vo.AuthVO">
+		SELECT * FROM validation_member_auth 
+		WHERE u_id = #{u_id}
+	</select>
+	
+	<!-- 권한 삭제 -->
+	<delete id="deleteAuth" parameterType="net.koreate.test.vo.AuthVO">
+		DELETE FROM validation_member_auth 
+		WHERE u_id = #{u_id} AND u_auth = #{u_auth} 
+	</delete>
+	
+	<insert id="insertMemberAuth" parameterType="net.koreate.test.vo.AuthVO">
+		INSERT INTO validation_member_auth(u_id,u_auth) 
+		VALUES(#{u_id},#{u_auth})
+	</insert>
+	
+	<update id="deleteYN" parameterType="net.koreate.test.vo.ValidationMemberVO">
+		UPDATE validation_member SET 
+		u_withdraw = #{u_withdraw} 
+		WHERE u_id = #{u_id}
+	</update>
+</mapper>
+
+
+

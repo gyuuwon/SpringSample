@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.comment.dao.CommentDAO">
+<!-- 나머지는 자동생성 되기때문에 작성하지 않아도 된다. cno,regdate,updatedate -->
+<!-- id값 = CommentDAO void addComment  -->
+	<insert id="addComment" parameterType="net.koreate.comment.vo.CommentVO">
+		INSERT INTO tbl_comment(bno,commentText,commentAuth) 
+		VALUES(#{bno},#{commentText},#{commentAuth})
+	</insert>
+	
+	<select id="list" parameterType="int" resultType="comment">
+		SELECT * FROM tbl_comment
+		WHERE bno = #{bno}
+		ORDER BY cno DESC
+	</select>
+	
+	<select id="update" parameterType="comment">
+		UPDATE tbl_comment SET
+		commentText = #{commentText} ,
+		updatedate = now()
+		WHERE cno = #{cno}
+	</select>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM tbl_comment WHERE cno = #{cno}
+	</delete>
+	
+	<select id="listPage" parameterType="java.util.HashMap" resultType="comment">
+		SELECT * FROM tbl_comment 
+		WHERE bno = #{bno}
+		ORDER BY cno DESC
+		limit #{cri.pageStart}, #{cri.perPageNum}
+	</select>
+	
+	<select id="count" parameterType="int" resultType="int">
+		SELECT count(*) FROM tbl_comment
+		WHERE bno = #{bno}
+	</select>
+</mapper>
+
+
+
+

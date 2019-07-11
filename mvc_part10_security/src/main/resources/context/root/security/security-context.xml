@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security 
+	http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+		
+		<bean id="customUserService" class="net.koreate.security.security.CustomUserDetailService"/>
+		
+		<bean id="customLoginSuccess" 
+		class="net.koreate.security.security.CustomLoginSuccessHandler"/>
+		
+		<!-- PasswordEncoder 인터페이스를 구현한 암호화 객체 -->
+		<!-- 패스워드에 암호화 진행을 하지 않는 구현객체 -->
+		<!-- 
+		<bean id="noopPasswordEncoder" 
+			class="org.springframework.security.crypto.password.NoOpPasswordEncoder"/>
+		 -->	
+		<!-- 별도 설정이 없을시  sha-256 방식으로 암호화 -->
+		<!-- 
+		<bean id="standardPasswordEncoder" 
+			class="org.springframework.security.crypto.password.StandardPasswordEncoder"/>
+		 -->	
+		<!-- bcrypt 해쉬 알고르즘으로 패스워드 암호화 -->	
+		<bean id="bcryptPasswordEncoder" 
+			class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+<!-- 		
+		<bean id="customNoopPasswordEncoder" 
+			class="net.koreate.security.security.CustomNoopPasswordEncoder" /> -->
+
+	<!-- spEL 사용여부 use-expressions="false" -->
+	<!-- auto-config="true" -->
+	<!-- login logout http-basic 자동 적용(default) -->
+	<security:http  use-expressions="true">
+		<security:intercept-url pattern="/test/all" access="permitAll"/>
+		<security:intercept-url pattern="/test/memberShip" access="hasAnyRole('ROLE_MEMBERSHIP','ROLE_MASTER')"/>
+		<security:intercept-url pattern="/test/master" access="hasRole('ROLE_MASTER')"/>
+		<!-- csrf token 사용 안함 -->
+		<!-- <security:csrf disabled="true"/> -->
+		
+		<security:form-login login-page="/login" authentication-success-handler-ref="customLoginSuccess"/>
+		
+		<security:access-denied-handler error-page="/errorForbidden"/>
+		
+		<security:logout logout-url="/logout" 
+							invalidate-session="true" 
+							logout-success-url="/"
+							delete-cookies="remember-me,JSESSIONID"/>
+							
+		<security:remember-me token-validity-seconds="2419200"/>
+							
+		<security:session-management invalid-session-url="/user/login">
+			<security:concurrency-control max-sessions="1" expired-url="/user/login"/>
+		</security:session-management>
+				
+	</security:http>
+
+	<!-- <security:authentication-manager>
+		<security:authentication-provider>
+			<security:password-encoder ref="bcryptPasswordEncoder"/>
+			<security:user-service>
+				<security:user name="member" password="member" authorities="ROLE_MEMBERSHIP"/>
+				<security:user name="master" password="master" authorities="ROLE_MASTER,ROLE_MEMBERSHIP"/>
+				<security:user name="master" password="{noop}master" authorities="ROLE_MASTER"/>
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	 -->
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserService">
+			<security:password-encoder ref="bcryptPasswordEncoder"/>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+</beans>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.koreate.dao.MessageDAO">
+	<insert id="create" parameterType="net.koreate.vo.MessageVO">
+		INSERT INTO tbl_message(targetid,sender,message)
+		VALUES(#{targetid},#{sender},#{message})
+	</insert>
+	
+	<select id="list" resultType="net.koreate.vo.MessageVO">
+		SELECT * FROM tbl_message ORDER BY mno DESC
+	</select>
+	
+	<update id="updateMessage" parameterType="int">
+		UPDATE tbl_message SET opendate = now()
+		WHERE mno = #{mno}
+	</update>
+	
+	<select id="readMessage" parameterType="int" resultType="net.koreate.vo.MessageVO">
+		SELECT * FROM tbl_message WHERE mno = #{mno}
+	</select>
+</mapper>
+
+
+
+

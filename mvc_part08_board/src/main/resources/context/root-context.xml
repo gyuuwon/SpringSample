@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName"
+			value="com.mysql.cj.jdbc.Driver" />
+		<property name="jdbcUrl"
+			value="jdbc:mysql://localhost:3306/mydata?serverTimezone=Asia/Seoul" />
+		<property name="username" value="java" />
+		<property name="password" value="java" />
+		<!-- 최대 커넥션 개수 default = 10 -->
+		<property name="maximumPoolSize" value="200" />
+		<!-- 기본 커넥션 유지 개수 default = maximumPoolSize -->
+		<property name="minimumIdle" value="20" />
+		<!-- 커넥션 유지 시간(ms) default 250ms -->
+		<property name="connectionTimeout" value="30000" />
+		<!-- 대기 시간(ms) default 600000ms -->
+		<property name="idleTimeout" value="200000" />
+	</bean>
+
+	<bean id="ds" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="ds" />
+		<property name="configLocation"
+			value="classpath:/MyBatisConfig.xml" />
+		<property name="mapperLocations"
+			value="classpath:mappers/*.xml" />
+	</bean>
+
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+
+	<aop:aspectj-autoproxy />
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="ds"></property>
+	</bean>
+
+	<tx:annotation-driven />
+
+	<mybatis-spring:scan base-package="net.koreate.dao" />
+	<context:component-scan base-package="net.koreate.service" />
+	<context:component-scan base-package="net.koreate.aop" />
+</beans>

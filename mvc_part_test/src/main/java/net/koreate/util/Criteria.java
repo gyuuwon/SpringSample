@@ -1,0 +1,54 @@
+package net.koreate.util;
+
+public class Criteria {
+	
+	private int page;
+	private int perPageNum;
+	
+	public Criteria() {
+		this(1,10);
+		System.out.println("CRI 기본 생성자 호출");
+	}
+	
+	public Criteria(int page, int perPageNum) {
+		this.page = page;
+		this.perPageNum = perPageNum;
+		System.out.println("Cri 생성자 호출");
+	}
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		System.out.println("setPage 호출");
+		if(page <= 0){
+			this.page = 1;
+			return;
+		}
+		this.page = page;
+	}
+
+	public int getPerPageNum() {
+		return perPageNum;
+	}
+
+	public void setPerPageNum(int perPageNum) {
+		if(perPageNum <= 0 || perPageNum > 100) {
+			this.perPageNum = 10;
+			return;
+		}
+		this.perPageNum = perPageNum;
+	}
+
+	public int getPageStart() {
+		return (this.page-1)*perPageNum;
+	}
+
+	@Override
+	public String toString() {
+		return "Criteria [page=" + page + ", perPageNum=" + perPageNum + "]";
+	}
+
+	
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<beans:bean id="loginInterceptor" class="net.koreate.interceptor.LoginInterceptor"/>
+	<beans:bean id="CheckCookieInterceptor" class="net.koreate.interceptor.CheckCookieInterceptor"/>
+	
+	<interceptors>
+		<interceptor>
+			<mapping path="/sboard/*"/>
+			<exclude-mapping path="/sboard/listReply"/>
+			<exclude-mapping path="/sboard/readPage"/>
+			<exclude-mapping path="/sboard/read"/>
+			<exclude-mapping path="/sboard/getAttach"/>
+			<beans:bean class="net.koreate.interceptor.AuthInterceptor" />
+		</interceptor>
+		<interceptor>
+			<mapping path="/**"/>
+			<!-- <exclude-mapping path="/user/*"/> -->
+			<exclude-mapping path="/user/signIn"/>
+			<exclude-mapping path="/user/signUp"/>
+			<exclude-mapping path="/user/signInPost"/>
+			<exclude-mapping path="/user/signUpPost"/>
+			<exclude-mapping path="/user/signOut"/>
+			<beans:ref bean="CheckCookieInterceptor"/>
+		</interceptor>
+		<interceptor>
+			<mapping path="/user/signUpPost"/>
+			<beans:bean class="net.koreate.interceptor.SignUpInterceptor"/>
+		</interceptor>
+		
+		<interceptor>
+			<mapping path="/user/signInPost"/>
+			<beans:ref bean="loginInterceptor"/>
+		</interceptor>
+		
+		<interceptor>
+			<mapping path="/sboard/read"/>
+			<beans:bean class="net.koreate.interceptor.CreateTokenInterceptor"/>
+		</interceptor>
+		
+		<interceptor>
+			<mapping path="/sboard/remove"/>
+			<beans:bean class="net.koreate.interceptor.CheckTokenInterceptor"/>
+		</interceptor>
+	</interceptors>
+	
+	
+</beans:beans>
